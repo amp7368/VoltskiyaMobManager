@@ -1,6 +1,8 @@
 package apple.voltskiya.mob_manager.listen;
 
 import apple.voltskiya.mob_manager.MMVoltskiyaPlugin;
+import apple.voltskiya.mob_manager.listen.order.MMSpawningPhase;
+import apple.voltskiya.mob_manager.listen.respawn.MMReSpawnResult;
 import apple.voltskiya.mob_manager.mob.MMSpawned;
 import apple.voltskiya.mob_manager.mob.MMSpawnedRuntimeDatabase;
 import apple.voltskiya.mob_manager.util.MMTagUtils;
@@ -11,7 +13,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import net.minecraft.world.entity.Entity;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.event.EventHandler;
@@ -28,11 +29,11 @@ public class MMSpawnListener implements Listener {
     private static MMSpawnListener instance;
 
     private final HashMultimap<String, ReSpawnListener> respawnListeners = HashMultimap.create();
-    private final SpawnHandlerListeners[] spawnListeners = new SpawnHandlerListeners[MMSpawningPhase.values().length];
+    private final SpawnListenerList[] spawnListeners = new SpawnListenerList[MMSpawningPhase.values().length];
 
     public MMSpawnListener() {
         instance = this;
-        Arrays.setAll(spawnListeners, SpawnHandlerListeners::new);
+        Arrays.setAll(spawnListeners, SpawnListenerList::new);
     }
 
     public static MMSpawnListener get() {
@@ -63,12 +64,12 @@ public class MMSpawnListener implements Listener {
         MMSpawned spawned = new MMSpawned(event.getEntity());
 
         // add spawn listeners
-        for (SpawnHandlerListeners handlerListener : spawnListeners) {
+        for (SpawnListenerList handlerListener : spawnListeners) {
             addModifiers(event, spawned, handlerListener);
         }
 
         // do the listeners
-        spawned.doInitialize();
+        spawned.getEvents().doInitialize();
         schedule(spawned::doHandle);
         spawned.save();
     }
@@ -85,7 +86,7 @@ public class MMSpawnListener implements Listener {
     public void onDamage(EntityDamageEvent event) {
         @Nullable MMSpawned mob = MMSpawnedRuntimeDatabase.getMob(event.getEntity().getUniqueId());
         if (mob != null) {
-            mob.doDamage(event);
+            mob.getEvents().doDamage(event);
         }
     }
 
@@ -94,17 +95,18 @@ public class MMSpawnListener implements Listener {
         UUID uuid = event.getEntity().getUniqueId();
         @Nullable MMSpawned mob = MMSpawnedRuntimeDatabase.getMob(uuid);
         if (mob != null) {
-            mob.doDisable();
+            mob.getEvents().doDisable();
             schedule(() -> MMSpawnedRuntimeDatabase.checkRemoveMob(uuid));
         }
     }
 
     private void addModifiers(CreatureSpawnEvent event, MMSpawned spawned,
-        SpawnHandlerListeners handler) {
+        SpawnListenerList handler) {
+        LivingEntity entity = event.getEntity();
         boolean isCancelled = event.isCancelled();
-        boolean isMob = event.getEntity() instanceof Mob;
-        for (String tag : event.getEntity().getScoreboardTags()) {
-            Set<SpawnListener> listenersWithTag = handler.listeners.get(tag);
+        boolean isMob = entity instanceof Mob;
+        for (String briefTag : List.copyOf(entity.getScoreboardTags())) {
+            Set<SpawnListener> listenersWithTag = handler.listeners.get(briefTag);
             if (handler.getState() == MMSpawningPhase.INITIALIZE)
                 continue;
             for (SpawnListener listener : listenersWithTag) {
@@ -114,7 +116,7 @@ public class MMSpawnListener implements Listener {
                     continue;
                 if (!listener.shouldHandle(event))
                     continue;
-                spawned.addHandler(listener, handler.getState());
+                spawned.getEvents().addHandler(listener, handler.getState());
             }
         }
     }
@@ -125,8 +127,7 @@ public class MMSpawnListener implements Listener {
             return false;
         boolean eventIsCancelled = event.isCancelled();
         boolean isMob = entity instanceof Mob;
-        for (String tag : entity.getScoreboardTags()) {
-            String briefTag = MMTagUtils.getBriefTag(tag);
+        for (String briefTag : entity.getScoreboardTags()) {
             @NotNull Set<ReSpawnListener> listenersWithTag = respawnListeners.get(briefTag);
             for (ReSpawnListener listener : listenersWithTag) {
                 if (eventIsCancelled && listener.ignoreCancelled())
@@ -153,24 +154,25 @@ public class MMSpawnListener implements Listener {
             MMVoltskiyaPlugin.get().getLogger().log(Level.WARNING, warning);
             return;
         }
-        CraftEntity bukkitEntity = entity.getBukkitEntity();
+        org.bukkit.entity.Entity bukkitEntity = entity.getBukkitEntity();
+        bukkitEntity.removeScoreboardTag(listener.getBriefTag());
+        bukkitEntity.addScoreboardTag(listener.getTag());
         MMTagUtils.setRespawned(bukkitEntity);
-        bukkitEntity.addScoreboardTag(listener.getVoltTag());
         result.addEntityToWorld();
     }
 
     public void handle(LivingEntity me, List<String> listeners) {
         MMSpawned spawned = new MMSpawned(me);
-        for (SpawnHandlerListeners handler : this.spawnListeners) {
+        for (SpawnListenerList handler : this.spawnListeners) {
             MMSpawningPhase state = handler.getState();
             for (String listenerName : listeners) {
                 Set<SpawnListener> listenersWithName = handler.listeners.get(listenerName);
                 for (SpawnListener listener : listenersWithName) {
-                    spawned.addHandler(listener, state);
+                    spawned.getEvents().addHandler(listener, state);
                 }
             }
         }
-        spawned.doInitialize();
+        spawned.getEvents().doInitialize();
         schedule(spawned::doHandle);
     }
 
@@ -178,12 +180,12 @@ public class MMSpawnListener implements Listener {
         MMVoltskiyaPlugin.get().scheduleSyncDelayedTask(runnable);
     }
 
-    private static class SpawnHandlerListeners {
+    private static class SpawnListenerList {
 
         private final HashMultimap<String, SpawnListener> listeners = HashMultimap.create();
         private final MMSpawningPhase state;
 
-        public SpawnHandlerListeners(int index) {
+        public SpawnListenerList(int index) {
             state = MMSpawningPhase.values()[index];
         }
 

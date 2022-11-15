@@ -1,4 +1,4 @@
-package apple.voltskiya.mob_manager.listen;
+package apple.voltskiya.mob_manager.listen.respawn;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;

@@ -1,6 +1,6 @@
 package apple.voltskiya.mob_manager.listen;
 
-import apple.voltskiya.mob_manager.util.MMTagUtils;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 
 public interface HandleSpawnListenerParent {
@@ -17,9 +17,16 @@ public interface HandleSpawnListenerParent {
         return true;
     }
 
+    default String getTag() {
+        return "volt." + getExtensionTag() + "." + getBriefTag();
+    }
+
     String getBriefTag();
 
-    default String getVoltTag() {
-        return MMTagUtils.getBriefTag(getBriefTag());
+    String getExtensionTag();
+
+    default void tag(Entity entity) {
+        entity.addScoreboardTag(this.getTag());
+        entity.removeScoreboardTag(this.getBriefTag());
     }
 }

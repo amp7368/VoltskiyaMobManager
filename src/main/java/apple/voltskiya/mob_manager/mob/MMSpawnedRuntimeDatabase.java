@@ -1,5 +1,6 @@
 package apple.voltskiya.mob_manager.mob;
 
+import apple.voltskiya.mob_manager.mob.MMSpawned;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -15,7 +16,7 @@ public class MMSpawnedRuntimeDatabase {
             oldMob = mobs.put(mob.getUUID(), mob);
         }
         if (oldMob != null)
-            oldMob.doDisable();
+            oldMob.getEvents().doDisable();
     }
 
     @Nullable
@@ -37,7 +38,7 @@ public class MMSpawnedRuntimeDatabase {
     public static void disableAllMobs() {
         synchronized (mobs) {
             for (MMSpawned mob : mobs.values()) {
-                mob.doDisable();
+                mob.getEvents().doDisable();
             }
         }
     }

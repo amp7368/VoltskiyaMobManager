@@ -1,15 +1,15 @@
 package apple.voltskiya.mob_manager;
 
-import apple.lib.pmc.AppleModule;
 import apple.voltskiya.mob_manager.listen.MMSpawnListener;
 import apple.voltskiya.mob_manager.mob.MMSpawned;
 import apple.voltskiya.mob_manager.mob.MMSpawnedRuntimeDatabase;
 import apple.voltskiya.mob_manager.storage.MMReload;
 import apple.voltskiya.mob_manager.storage.MMSpawnedDatabase;
+import com.voltskiya.lib.AbstractModule;
 import java.util.UUID;
 import org.jetbrains.annotations.Nullable;
 
-public class MobManager extends AppleModule {
+public class MobManager extends AbstractModule {
 
     private static MobManager instance;
 

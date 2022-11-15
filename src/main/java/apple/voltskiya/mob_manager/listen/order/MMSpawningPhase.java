@@ -1,4 +1,4 @@
-package apple.voltskiya.mob_manager.listen;
+package apple.voltskiya.mob_manager.listen.order;
 
 public enum MMSpawningPhase {
     INITIALIZE,

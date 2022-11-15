@@ -1,11 +1,11 @@
 package apple.voltskiya.mob_manager;
 
-import apple.lib.pmc.AppleModule;
-import apple.lib.pmc.ApplePlugin;
+import com.voltskiya.lib.AbstractModule;
+import com.voltskiya.lib.AbstractVoltPlugin;
 import java.util.Collection;
 import java.util.List;
 
-public class MMVoltskiyaPlugin extends ApplePlugin {
+public class MMVoltskiyaPlugin extends AbstractVoltPlugin {
 
     private static MMVoltskiyaPlugin instance;
 
@@ -18,7 +18,7 @@ public class MMVoltskiyaPlugin extends ApplePlugin {
     }
 
     @Override
-    public Collection<AppleModule> getModules() {
+    public Collection<AbstractModule> getModules() {
         return List.of(new MobManager());
     }
 }

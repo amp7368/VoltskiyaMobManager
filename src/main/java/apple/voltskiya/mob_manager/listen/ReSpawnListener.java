@@ -1,5 +1,6 @@
 package apple.voltskiya.mob_manager.listen;
 
+import apple.voltskiya.mob_manager.listen.respawn.MMReSpawnResult;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import org.bukkit.event.entity.CreatureSpawnEvent;
@@ -11,6 +12,11 @@ public interface ReSpawnListener extends HandleSpawnListenerParent {
 
     default void registerReSpawnListener() {
         MMSpawnListener.get().addRespawnListener(this);
+    }
+
+    @Override
+    default String getExtensionTag() {
+        return "mob";
     }
 
     default MMReSpawnResult reSpawnResult(Entity entity, ServerLevel world,
