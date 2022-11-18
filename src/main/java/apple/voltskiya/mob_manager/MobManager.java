@@ -1,15 +1,17 @@
 package apple.voltskiya.mob_manager;
 
-import apple.lib.pmc.AppleModule;
-import apple.voltskiya.mob_manager.listen.MMSpawnListener;
+import apple.voltskiya.mob_manager.listen.MMBukkitEntityListener;
+import apple.voltskiya.mob_manager.listen.MMEventDispatcher;
+import apple.voltskiya.mob_manager.listen.MMUnloadListener;
 import apple.voltskiya.mob_manager.mob.MMSpawned;
-import apple.voltskiya.mob_manager.mob.MMSpawnedRuntimeDatabase;
 import apple.voltskiya.mob_manager.storage.MMReload;
-import apple.voltskiya.mob_manager.storage.MMSpawnedDatabase;
+import apple.voltskiya.mob_manager.storage.MMRuntimeDatabase;
+import apple.voltskiya.mob_manager.storage.MMSpawnedStorage;
+import com.voltskiya.lib.AbstractModule;
 import java.util.UUID;
 import org.jetbrains.annotations.Nullable;
 
-public class MobManager extends AppleModule {
+public class MobManager extends AbstractModule {
 
     private static MobManager instance;
 
@@ -23,25 +25,26 @@ public class MobManager extends AppleModule {
 
     @Nullable
     public static MMSpawned getMob(UUID uuid) {
-        return MMSpawnedRuntimeDatabase.getMob(uuid);
+        return MMRuntimeDatabase.getMob(uuid);
     }
 
     @Override
     public void init() {
-        MMSpawnedDatabase.loadDatabase();
-        new MMSpawnListener();
+        MMSpawnedStorage.loadDatabase();
+        new MMEventDispatcher();
     }
 
     @Override
     public void enable() {
-        MMVoltskiyaPlugin.get().registerEvents(MMSpawnListener.get());
-        MMVoltskiyaPlugin.get().scheduleSyncDelayedTask(MMSpawnedDatabase::loadAllMobs);
+        new MMBukkitEntityListener();
+        new MMUnloadListener();
+        MMVoltskiyaPlugin.get().scheduleSyncDelayedTask(MMSpawnedStorage::loadAllMobs);
         MMVoltskiyaPlugin.get().scheduleSyncDelayedTask(MMReload::reload);
     }
 
     @Override
     public void onDisable() {
-        MMSpawnedRuntimeDatabase.disableAllMobs();
+        MMRuntimeDatabase.disableAllMobs();
     }
 
     @Override

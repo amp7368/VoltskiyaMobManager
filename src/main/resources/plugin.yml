@@ -3,4 +3,4 @@ version: 1.0
 main: apple.voltskiya.mob_manager.MMVoltskiyaPlugin
 api-version: 1.16
 authors: [ appleptr16 ]
-softdepend: [ LoadDependencies, ApplePluginManager, AppleMCUtil, DecodingNms, VoltskiyaUtilities ]
+softdepend: [ LoadDependencies, VoltPluginManager, AppleMCUtil, DecodingNms, VoltskiyaUtilities ]

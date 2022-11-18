@@ -1,11 +1,12 @@
-package apple.voltskiya.mob_manager.mob;
+package apple.voltskiya.mob_manager.storage;
 
+import apple.voltskiya.mob_manager.mob.MMSpawned;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import org.jetbrains.annotations.Nullable;
 
-public class MMSpawnedRuntimeDatabase {
+public class MMRuntimeDatabase {
 
     public static final Map<UUID, MMSpawned> mobs = new HashMap<>();
 
@@ -15,7 +16,16 @@ public class MMSpawnedRuntimeDatabase {
             oldMob = mobs.put(mob.getUUID(), mob);
         }
         if (oldMob != null)
-            oldMob.doDisable();
+            oldMob.getEvents().disable();
+    }
+
+    public static void disableAllMobs() {
+        synchronized (mobs) {
+            for (MMSpawned mob : mobs.values()) {
+                mob.getEvents().disable();
+            }
+            mobs.clear();
+        }
     }
 
     @Nullable
@@ -25,20 +35,16 @@ public class MMSpawnedRuntimeDatabase {
         }
     }
 
-    public static void checkRemoveMob(UUID uuid) {
-        @Nullable MMSpawned mob = getMob(uuid);
-        if (mob != null && mob.isDead()) {
-            synchronized (mobs) {
-                mobs.remove(uuid);
-            }
+    public static void removeMob(UUID uuid) {
+        synchronized (mobs) {
+            mobs.remove(uuid);
         }
     }
 
-    public static void disableAllMobs() {
+
+    public static boolean hasMob(UUID uuid) {
         synchronized (mobs) {
-            for (MMSpawned mob : mobs.values()) {
-                mob.doDisable();
-            }
+            return mobs.containsKey(uuid);
         }
     }
 }

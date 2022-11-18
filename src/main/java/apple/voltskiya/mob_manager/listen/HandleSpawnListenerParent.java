@@ -1,25 +1,27 @@
 package apple.voltskiya.mob_manager.listen;
 
-import apple.voltskiya.mob_manager.util.MMTagUtils;
-import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.entity.Entity;
 
 public interface HandleSpawnListenerParent {
-
-    default boolean ignoreCancelled() {
-        return true;
-    }
 
     default boolean isOnlyMobs() {
         return false;
     }
 
-    default boolean shouldHandle(CreatureSpawnEvent event) {
+    default boolean shouldHandle(Entity event) {
         return true;
+    }
+
+    default String getTag() {
+        return "volt." + getExtensionTag() + "." + getBriefTag();
     }
 
     String getBriefTag();
 
-    default String getVoltTag() {
-        return MMTagUtils.getBriefTag(getBriefTag());
+    String getExtensionTag();
+
+    default void tag(Entity entity) {
+        entity.removeScoreboardTag(this.getBriefTag());
+        entity.addScoreboardTag(this.getTag());
     }
 }
