@@ -4,6 +4,7 @@ import apple.voltskiya.mob_manager.mob.HasMMSpawnedUtility;
 import apple.voltskiya.mob_manager.mob.MMSpawned;
 import java.util.Random;
 import org.bukkit.Bukkit;
+import org.bukkit.event.entity.EntityDeathEvent;
 
 public abstract class MMAbilityBase implements HasMMSpawnedUtility {
 
@@ -24,6 +25,11 @@ public abstract class MMAbilityBase implements HasMMSpawnedUtility {
 
 
     protected final void tick_() {
+        boolean isBlocked = this.mob.isBlocked();
+        if (isBlocked && this.isAbilityBlocking()) {
+            setNextTickLater(activation.getTickInterval());
+            return;
+        }
         if (this.isRunning) {
             setNextTickLater(activation.getCooldown());
             return;
@@ -56,8 +62,11 @@ public abstract class MMAbilityBase implements HasMMSpawnedUtility {
         }
         this.isRunning = false;
         setNextTickLater(activation.getCooldown());
+        this.onFinishAbility();
     }
 
+    protected void onFinishAbility() {
+    }
 
     protected boolean isAbilityBlocking() {
         return true;
@@ -81,5 +90,14 @@ public abstract class MMAbilityBase implements HasMMSpawnedUtility {
         return this.mob;
     }
 
-    public abstract void doDeath();
+    // runs on death as well
+    public void disable() {
+        this.finishAbility();
+        this.cleanUp(isDead());
+    }
+
+    public abstract void cleanUp(boolean isDead);
+
+    public void onDeath(EntityDeathEvent event) {
+    }
 }

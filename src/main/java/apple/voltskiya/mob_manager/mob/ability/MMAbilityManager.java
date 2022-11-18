@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import org.bukkit.Bukkit;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.jetbrains.annotations.Nullable;
 
 public class MMAbilityManager implements HasMMSpawnedUtility {
@@ -41,12 +42,10 @@ public class MMAbilityManager implements HasMMSpawnedUtility {
     }
 
     private void tick() {
-        boolean isBlocked = this.mob.isBlocked();
         int currentTick = Bukkit.getCurrentTick();
         for (MMAbilityBase ability : this.abilities) {
             if (ability.getNextTick() == currentTick) {
-                if (!isBlocked || !ability.isAbilityBlocking())
-                    ability.tick_();
+                ability.tick_();
             } else
                 break;
         }
@@ -62,11 +61,18 @@ public class MMAbilityManager implements HasMMSpawnedUtility {
         return this.mob;
     }
 
-    public void doDeath() {
+    public void doDeath(EntityDeathEvent event) {
         if (this.nextTick != null)
             this.nextTick.cancel();
         for (MMAbilityBase ability : this.abilities) {
-            ability.doDeath();
+            ability.onDeath(event);
+        }
+    }
+
+    // runs on death as well
+    public void disable() {
+        for (MMAbilityBase ability : this.abilities) {
+            ability.disable();
         }
     }
 }

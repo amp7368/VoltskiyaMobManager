@@ -1,19 +1,14 @@
 package apple.voltskiya.mob_manager.listen;
 
 import org.bukkit.entity.Entity;
-import org.bukkit.event.entity.CreatureSpawnEvent;
 
 public interface HandleSpawnListenerParent {
-
-    default boolean ignoreCancelled() {
-        return true;
-    }
 
     default boolean isOnlyMobs() {
         return false;
     }
 
-    default boolean shouldHandle(CreatureSpawnEvent event) {
+    default boolean shouldHandle(Entity event) {
         return true;
     }
 
@@ -26,7 +21,7 @@ public interface HandleSpawnListenerParent {
     String getExtensionTag();
 
     default void tag(Entity entity) {
-        entity.addScoreboardTag(this.getTag());
         entity.removeScoreboardTag(this.getBriefTag());
+        entity.addScoreboardTag(this.getTag());
     }
 }

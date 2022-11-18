@@ -4,8 +4,8 @@ import apple.voltskiya.mob_manager.listen.SpawnListener;
 import apple.voltskiya.mob_manager.listen.order.MMSpawningPhase;
 import apple.voltskiya.mob_manager.mob.HasMMSpawnedUtility;
 import apple.voltskiya.mob_manager.mob.MMSpawned;
-import apple.voltskiya.mob_manager.storage.MMSpawnedDatabase;
 import apple.voltskiya.mob_manager.storage.MMSpawnedSaved;
+import apple.voltskiya.mob_manager.storage.MMSpawnedStorage;
 import apple.voltskiya.mob_manager.util.MMTagUtils;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -52,8 +52,8 @@ public class MMEventManager implements HasMMSpawnedUtility {
                 listeners.addAll(
                     handler.listeners.stream().map(SpawnListener::getBriefTag).toList());
         }
-        MMSpawnedSaved saved = new MMSpawnedSaved(this.mob.getUUID(), listeners);
-        MMSpawnedDatabase.saveMob(saved);
+        MMSpawnedSaved saved = new MMSpawnedSaved(listeners);
+        MMSpawnedStorage.saveMob(this.mob.getUUID(), saved);
     }
 
     private <T> void doToEachHandler(Handle<T> action, T event) {
@@ -81,7 +81,7 @@ public class MMEventManager implements HasMMSpawnedUtility {
         doToEachHandler(MMSpawnHandler::onDamage, event);
     }
 
-    public void doDisable() {
+    public void disable() {
         doToEachHandler(MMSpawnHandler::disable);
     }
 

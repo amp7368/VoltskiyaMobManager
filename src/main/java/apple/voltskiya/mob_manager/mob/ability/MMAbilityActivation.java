@@ -27,7 +27,7 @@ public class MMAbilityActivation {
     }
 
     public int getTickInterval() {
-        return this.tickInterval;
+        return Math.max(this.tickInterval, 1);
     }
 
     public void setTickInterval(int tickInterval) {

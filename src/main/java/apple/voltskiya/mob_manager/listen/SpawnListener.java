@@ -9,16 +9,15 @@ import org.bukkit.event.entity.EntityDeathEvent;
 public interface SpawnListener extends HandleSpawnListenerParent {
 
     default void registerSpawnListener() {
-        MMSpawnListener.get().addListener(this);
+        MMEventDispatcher.get().addListener(this);
     }
 
     void doSpawn(MMSpawned spawned);
 
-    default void doReload(MMSpawned spawned) {
-        doSpawn(spawned);
+    default void onDeath(MMSpawned spawned, EntityDeathEvent event) {
     }
 
-    default void onDeath(MMSpawned spawned, EntityDeathEvent event) {
+    default void disable(MMSpawned spawned) {
     }
 
     default void onDamage(MMSpawned spawned, EntityDamageEvent event) {
@@ -29,8 +28,6 @@ public interface SpawnListener extends HandleSpawnListenerParent {
         return "ability";
     }
 
-    default void disable(MMSpawned spawned) {
-    }
 
     default MMSpawningOrder order() {
         return MMSpawningOrder.NORMAL;

@@ -31,6 +31,4 @@ public interface MMTagUtils {
     static void setRespawned(Entity entity) {
         entity.addScoreboardTag(VOLT_RESPAWNED_TAG);
     }
-
-
 }

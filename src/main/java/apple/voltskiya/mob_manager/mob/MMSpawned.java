@@ -2,6 +2,7 @@ package apple.voltskiya.mob_manager.mob;
 
 import apple.voltskiya.mob_manager.mob.ability.MMAbilityManager;
 import apple.voltskiya.mob_manager.mob.event.MMEventManager;
+import apple.voltskiya.mob_manager.storage.MMRuntimeDatabase;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.jetbrains.annotations.NotNull;
@@ -16,7 +17,7 @@ public class MMSpawned implements HasEntityUtility {
 
     public MMSpawned(@NotNull Entity entity) {
         this.entity = entity;
-        MMSpawnedRuntimeDatabase.addMob(this);
+        MMRuntimeDatabase.addMob(this);
     }
 
     @Override
@@ -37,10 +38,6 @@ public class MMSpawned implements HasEntityUtility {
         this.events.doHandle();
     }
 
-    public void save() {
-        this.events.save();
-    }
-
     public void setBlocked(boolean isBlocked) {
         this.isBlocked = isBlocked;
     }
@@ -50,7 +47,13 @@ public class MMSpawned implements HasEntityUtility {
     }
 
     public void doDeath(EntityDeathEvent event) {
-        this.abilities.doDeath();
+        this.abilities.doDeath(event);
         this.events.doDeath(event);
+    }
+
+    // runs on death as well
+    public void disable() {
+        this.abilities.disable();
+        this.events.disable();
     }
 }
