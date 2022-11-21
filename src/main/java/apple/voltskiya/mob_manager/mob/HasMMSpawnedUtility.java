@@ -14,5 +14,7 @@ public interface HasMMSpawnedUtility extends HasEntityUtility {
     default void setBlocked(boolean blocked) {
         this.getMMSpawned().setBlocked(blocked);
     }
-
+    default boolean isBlocked() {
+        return this.getMMSpawned().isBlocked();
+    }
 }

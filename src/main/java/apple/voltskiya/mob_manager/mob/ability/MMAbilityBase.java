@@ -2,43 +2,48 @@ package apple.voltskiya.mob_manager.mob.ability;
 
 import apple.voltskiya.mob_manager.mob.HasMMSpawnedUtility;
 import apple.voltskiya.mob_manager.mob.MMSpawned;
+import apple.voltskiya.mob_manager.mob.ability.activation.ActivationManager;
 import java.util.Random;
-import org.bukkit.Bukkit;
 import org.bukkit.event.entity.EntityDeathEvent;
 
 public abstract class MMAbilityBase implements HasMMSpawnedUtility {
 
     protected final MMSpawned mob;
-    protected final MMAbilityActivation activation;
+    protected final ActivationManager activation;
     protected final Random random = new Random();
 
     private int nextTick;
 
-    private boolean isRunning = false;
+    private boolean isAbilityRunning = false;
 
-    public MMAbilityBase(MMSpawned mob, MMAbilityActivation activation) {
+    public MMAbilityBase(MMSpawned mob, ActivationManager activation) {
         this.mob = mob;
-        this.activation = activation;
-        setNextTickLater(activation.getCooldown());
+        this.activation = activation.setAbility(this);
+        setNextTickLater();
         this.mob.getAbilities().registerAbility(this);
     }
 
 
+    // while ticking, use activation#getTickInterval(), but while determining when to run, use activation#getNextCheck
     protected final void tick_() {
-        boolean isBlocked = this.mob.isBlocked();
-        if (isBlocked && this.isAbilityBlocking()) {
-            setNextTickLater(activation.getTickInterval());
+        if (this.isAbilityBlocking() && this.isBlocked()) {
+            setNextTickLater();
             return;
         }
-        if (this.isRunning) {
-            setNextTickLater(activation.getCooldown());
+        if (this.isAbilityRunning) {
+            activation.onContinueAbility();
+            setNextTickLater();
             return;
         }
 
-        if (rollToTick() && this.canStartAbility())
+        if (this.canStartAbility_())
             startAbility_();
         else
-            setNextTickLater(activation.getTickInterval());
+            setNextTickLater();
+    }
+
+    private boolean canStartAbility_() {
+        return this.activation.canStartAbility() && this.canStartAbility();
     }
 
     protected boolean canStartAbility() {
@@ -46,43 +51,37 @@ public abstract class MMAbilityBase implements HasMMSpawnedUtility {
     }
 
     private void startAbility_() {
-        if (this.isAbilityBlocking()) {
-            setBlocked(true);
-        }
-        setNextTickLater(activation.getCooldown());
-        this.isRunning = true;
-        startAbility();
+        setRunning(true);
+        this.activation.onStartAbility();
+        this.startAbility();
     }
 
     protected abstract void startAbility();
 
     protected void finishAbility() {
-        if (this.isAbilityBlocking()) {
-            setBlocked(false);
-        }
-        this.isRunning = false;
-        setNextTickLater(activation.getCooldown());
+        setRunning(false);
+        this.activation.onFinishAbility();
         this.onFinishAbility();
     }
 
-    protected void onFinishAbility() {
+    private void setRunning(boolean isRunning) {
+        if (this.isAbilityBlocking())
+            setBlocked(isRunning);
+        this.isAbilityRunning = isRunning;
+        setNextTickLater();
     }
+
 
     protected boolean isAbilityBlocking() {
         return true;
     }
 
-
     public int getNextTick() {
         return this.nextTick;
     }
 
-    private void setNextTickLater(int delay) {
-        this.nextTick = Bukkit.getCurrentTick() + delay;
-    }
-
-    private boolean rollToTick() {
-        return this.random.nextDouble() <= activation.minRollToActivate();
+    private void setNextTickLater() {
+        this.nextTick = activation.getNextTick();
     }
 
     @Override
@@ -99,5 +98,8 @@ public abstract class MMAbilityBase implements HasMMSpawnedUtility {
     public abstract void cleanUp(boolean isDead);
 
     public void onDeath(EntityDeathEvent event) {
+    }
+
+    protected void onFinishAbility() {
     }
 }

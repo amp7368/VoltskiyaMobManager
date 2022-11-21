@@ -22,23 +22,28 @@ import org.jetbrains.annotations.NotNull;
 public class MMSpawnedStorage implements SaveFileable {
 
     private static final Map<String, MMSpawnedStorage> databases = new HashMap<>();
-    private static AppleAJDTyped<MMSpawnedStorage, AsyncTaskQueue> databaseManager;
+    private static AppleAJDTyped<MMSpawnedStorage> databaseManager;
 
-    private final String id;
+    private String id;
     private final Map<UUID, MMSpawnedSaved> spawned = new HashMap<>();
 
     public MMSpawnedStorage(String id) {
         this.id = id;
     }
 
+    public MMSpawnedStorage() {
+    }
+
     public static void loadDatabase() {
+        MobManager.get().logger().info("Loading MMSpawnedStorage database");
         File saveFolder = MobManager.get().getFile("Mobs");
-        AsyncTaskQueueStart<AsyncTaskQueue> service = new TaskHandlerQueue(10, 0, 0).taskCreator();
+        AsyncTaskQueueStart<AsyncTaskQueue> service = new TaskHandlerQueue(10, 1, 0).taskCreator();
         databaseManager = AppleAJD.createTyped(MMSpawnedStorage.class, saveFolder, service);
         @NotNull Collection<MMSpawnedStorage> loaded = databaseManager.loadFolderNow();
         for (MMSpawnedStorage database : loaded) {
             databases.put(database.id, database);
         }
+        MobManager.get().logger().info("Loaded MMSpawnedStorage database");
     }
 
     private static String getId(UUID uuid) {
@@ -62,9 +67,11 @@ public class MMSpawnedStorage implements SaveFileable {
     }
 
     public static void loadAllMobs() {
+        MobManager.get().logger().info("Loading MMSpawnedStorage Mobs");
         for (MMSpawnedStorage database : databases.values()) {
             database.loadMobs();
         }
+        MobManager.get().logger().info("Loaded MMSpawnedStorage Mobs");
     }
 
     private void loadMobs() {

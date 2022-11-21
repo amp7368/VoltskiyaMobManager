@@ -44,7 +44,7 @@ public class MMAbilityManager implements HasMMSpawnedUtility {
     private void tick() {
         int currentTick = Bukkit.getCurrentTick();
         for (MMAbilityBase ability : this.abilities) {
-            if (ability.getNextTick() == currentTick) {
+            if (ability.getNextTick() <= currentTick) {
                 ability.tick_();
             } else
                 break;

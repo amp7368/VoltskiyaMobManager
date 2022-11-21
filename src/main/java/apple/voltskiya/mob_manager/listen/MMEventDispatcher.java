@@ -1,6 +1,7 @@
 package apple.voltskiya.mob_manager.listen;
 
 import apple.voltskiya.mob_manager.MMVoltskiyaPlugin;
+import apple.voltskiya.mob_manager.MobManager;
 import apple.voltskiya.mob_manager.listen.order.MMSpawningPhase;
 import apple.voltskiya.mob_manager.listen.respawn.MMReSpawnResult;
 import apple.voltskiya.mob_manager.mob.MMSpawned;
@@ -10,7 +11,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
 import org.bukkit.craftbukkit.v1_19_R1.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Mob;
@@ -36,8 +36,7 @@ public class MMEventDispatcher implements Listener {
 
     public void addListener(SpawnListener listener) {
         int phase = listener.getHandleOnPhase().ordinal();
-        Set<SpawnListener> listenersWithTag = spawnListeners[phase].listeners.get(
-            listener.getBriefTag());
+        Set<SpawnListener> listenersWithTag = spawnListeners[phase].listeners.get(listener.getBriefTag());
         listenersWithTag.add(listener);
         synchronized (this.extensions) {
             this.extensions.add(listener.getExtensionTag());
@@ -53,8 +52,7 @@ public class MMEventDispatcher implements Listener {
     }
 
 
-    private void addModifiers(Entity entity, MMSpawned spawned,
-        SpawnListenerList handler) {
+    private void addModifiers(Entity entity, MMSpawned spawned, SpawnListenerList handler) {
         boolean isMob = entity instanceof Mob;
         for (String tag : List.copyOf(entity.getScoreboardTags())) {
             Set<SpawnListener> listenersWithTag = handler.listeners.get(getBriefTag(tag));
@@ -103,9 +101,8 @@ public class MMEventDispatcher implements Listener {
     private void doRespawn(Entity entity, ReSpawnListener listener) {
         MMReSpawnResult result = listener.doReSpawn(((CraftEntity) entity).getHandle());
         if (result == null) {
-            String warning = String.format("%s failed to be created at %s", listener.getBriefTag(),
-                entity.getLocation());
-            MMVoltskiyaPlugin.get().getLogger().log(Level.WARNING, warning);
+            String warning = String.format("%s failed to be created at %s", listener.getBriefTag(), entity.getLocation());
+            MobManager.get().logger().warn(warning);
             return;
         }
         Entity bukkitEntity = result.entity().getBukkitEntity();
