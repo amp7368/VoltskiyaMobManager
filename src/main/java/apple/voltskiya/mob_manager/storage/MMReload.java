@@ -1,5 +1,6 @@
 package apple.voltskiya.mob_manager.storage;
 
+import apple.voltskiya.mob_manager.MobManager;
 import apple.voltskiya.mob_manager.util.MMTagUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
@@ -13,12 +14,14 @@ import org.jetbrains.annotations.NotNull;
 public class MMReload {
 
     public static void reload() {
+        MobManager.get().logger().info("Loading MMReload chunks");
         for (World world : Bukkit.getWorlds()) {
             for (@NotNull Chunk chunk : world.getLoadedChunks()) {
                 if (chunk.isLoaded())
                     loadChunk(chunk);
             }
         }
+        MobManager.get().logger().info("Loaded chunks");
     }
 
     private static void loadChunk(@NotNull Chunk chunk) {

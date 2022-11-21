@@ -28,7 +28,6 @@ public interface SpawnListener extends HandleSpawnListenerParent {
         return "ability";
     }
 
-
     default MMSpawningOrder order() {
         return MMSpawningOrder.NORMAL;
     }
