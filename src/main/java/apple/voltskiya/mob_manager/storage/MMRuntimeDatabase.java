@@ -16,13 +16,13 @@ public class MMRuntimeDatabase {
             oldMob = mobs.put(mob.getUUID(), mob);
         }
         if (oldMob != null)
-            oldMob.getEvents().disable();
+            oldMob.disable();
     }
 
     public static void disableAllMobs() {
         synchronized (mobs) {
             for (MMSpawned mob : mobs.values()) {
-                mob.getEvents().disable();
+                mob.disable();
             }
             mobs.clear();
         }

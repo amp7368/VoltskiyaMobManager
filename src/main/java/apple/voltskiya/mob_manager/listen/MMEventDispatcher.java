@@ -14,16 +14,15 @@ import java.util.Set;
 import org.bukkit.craftbukkit.v1_19_R1.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Mob;
-import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
 
-public class MMEventDispatcher implements Listener {
+public class MMEventDispatcher {
 
     private static MMEventDispatcher instance;
 
     private final HashMultimap<String, ReSpawnListener> respawnListeners = HashMultimap.create();
     private final SpawnListenerList[] spawnListeners = new SpawnListenerList[MMSpawningPhase.values().length];
-    private final Set<String> extensions = new HashSet<>();
+    private final Set<String> fullExtensions = new HashSet<>();
 
     public MMEventDispatcher() {
         instance = this;
@@ -38,16 +37,16 @@ public class MMEventDispatcher implements Listener {
         int phase = listener.getHandleOnPhase().ordinal();
         Set<SpawnListener> listenersWithTag = spawnListeners[phase].listeners.get(listener.getBriefTag());
         listenersWithTag.add(listener);
-        synchronized (this.extensions) {
-            this.extensions.add(listener.getExtensionTag());
+        synchronized (this.fullExtensions) {
+            this.fullExtensions.add(listener.getFullExtensionTag());
         }
     }
 
     public void addRespawnListener(ReSpawnListener listener) {
         Set<ReSpawnListener> listenersWithTag = respawnListeners.get(listener.getBriefTag());
         listenersWithTag.add(listener);
-        synchronized (this.extensions) {
-            this.extensions.add(listener.getExtensionTag());
+        synchronized (this.fullExtensions) {
+            this.fullExtensions.add(listener.getFullExtensionTag());
         }
     }
 
@@ -69,10 +68,10 @@ public class MMEventDispatcher implements Listener {
     }
 
     private String getBriefTag(String tag) {
-        synchronized (this.extensions) {
-            for (String extension : this.extensions) {
-                if (tag.startsWith(extension))
-                    return tag.substring(extension.length());
+        synchronized (this.fullExtensions) {
+            for (String fullExtension : this.fullExtensions) {
+                if (tag.startsWith(fullExtension))
+                    return tag.substring(fullExtension.length());
             }
         }
         return tag;
@@ -111,21 +110,6 @@ public class MMEventDispatcher implements Listener {
         MMTagUtils.setRespawned(bukkitEntity);
         result.addEntityToWorld();
     }
-
-//    public void handle(org.bukkit.entity.Entity entity, List<String> listeners) {
-//        MMSpawned spawned = new MMSpawned(entity);
-//        for (SpawnListenerList handler : this.spawnListeners) {
-//            MMSpawningPhase state = handler.getState();
-//            for (String listenerName : listeners) {
-//                Set<SpawnListener> listenersWithName = handler.listeners.get(listenerName);
-//                for (SpawnListener listener : listenersWithName) {
-//                    spawned.getEvents().addHandler(listener, state);
-//                }
-//            }
-//        }
-//        spawned.getEvents().doInitialize();
-//        schedule(spawned::doHandle);
-//    }
 
     private void schedule(Runnable runnable) {
         MMVoltskiyaPlugin.get().scheduleSyncDelayedTask(runnable);

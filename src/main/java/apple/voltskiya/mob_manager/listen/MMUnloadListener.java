@@ -36,7 +36,7 @@ public class MMUnloadListener implements Listener {
         UUID uuid = event.getEntity().getUniqueId();
         @Nullable MMSpawned mob = MMRuntimeDatabase.getMob(uuid);
         if (mob != null)
-            mob.doDeath(event);
+            mob.onDeath(event);
         unload(event.getEntity());
     }
 
@@ -57,13 +57,17 @@ public class MMUnloadListener implements Listener {
     }
 
     public static void load(Entity entity) {
+        System.out.println(entity.getName());
         if (entity.isDead())
             return;
         UUID uuid = entity.getUniqueId();
+        System.out.println(MMRuntimeDatabase.hasMob(uuid));
         if (MMRuntimeDatabase.hasMob(uuid))
             return;
-        MMTagUtils.removeComplete(entity);
-        MMTagUtils.removeRespawned(entity);
+        if (MMTagUtils.isComplete(entity)) {
+            MMTagUtils.removeComplete(entity);
+            MMTagUtils.removeRespawned(entity);
+        }
         MMEventDispatcher.get().load(entity);
     }
 }

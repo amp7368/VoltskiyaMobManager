@@ -37,7 +37,7 @@ public class MMSpawnedStorage implements SaveFileable {
     public static void loadDatabase() {
         MobManager.get().logger().info("Loading MMSpawnedStorage database");
         File saveFolder = MobManager.get().getFile("Mobs");
-        AsyncTaskQueueStart<AsyncTaskQueue> service = new TaskHandlerQueue(10, 1, 0).taskCreator();
+        AsyncTaskQueueStart<AsyncTaskQueue> service = new TaskHandlerQueue(10, 0, 0).taskCreator();
         databaseManager = AppleAJD.createTyped(MMSpawnedStorage.class, saveFolder, service);
         @NotNull Collection<MMSpawnedStorage> loaded = databaseManager.loadFolderNow();
         for (MMSpawnedStorage database : loaded) {

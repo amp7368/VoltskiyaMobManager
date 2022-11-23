@@ -73,11 +73,11 @@ public class MMEventManager implements HasMMSpawnedUtility {
     }
 
 
-    public void doDeath(EntityDeathEvent event) {
+    public void onDeath(EntityDeathEvent event) {
         doToEachHandler(MMSpawnHandler::onDeath, event);
     }
 
-    public void doDamage(EntityDamageEvent event) {
+    public void onDamage(EntityDamageEvent event) {
         doToEachHandler(MMSpawnHandler::onDamage, event);
     }
 

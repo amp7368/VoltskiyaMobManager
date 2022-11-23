@@ -4,7 +4,6 @@ import apple.voltskiya.mob_manager.listen.MMBukkitEntityListener;
 import apple.voltskiya.mob_manager.listen.MMEventDispatcher;
 import apple.voltskiya.mob_manager.listen.MMUnloadListener;
 import apple.voltskiya.mob_manager.mob.MMSpawned;
-import apple.voltskiya.mob_manager.storage.MMReload;
 import apple.voltskiya.mob_manager.storage.MMRuntimeDatabase;
 import apple.voltskiya.mob_manager.storage.MMSpawnedStorage;
 import com.voltskiya.lib.AbstractModule;
@@ -39,7 +38,6 @@ public class MobManager extends AbstractModule {
         new MMBukkitEntityListener();
         new MMUnloadListener();
         MMVoltskiyaPlugin.get().scheduleSyncDelayedTask(MMSpawnedStorage::loadAllMobs);
-        MMVoltskiyaPlugin.get().scheduleSyncDelayedTask(MMReload::reload);
     }
 
     @Override

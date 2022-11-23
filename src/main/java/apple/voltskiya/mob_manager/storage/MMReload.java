@@ -17,8 +17,7 @@ public class MMReload {
         MobManager.get().logger().info("Loading MMReload chunks");
         for (World world : Bukkit.getWorlds()) {
             for (@NotNull Chunk chunk : world.getLoadedChunks()) {
-                if (chunk.isLoaded())
-                    loadChunk(chunk);
+                loadChunk(chunk);
             }
         }
         MobManager.get().logger().info("Loaded chunks");

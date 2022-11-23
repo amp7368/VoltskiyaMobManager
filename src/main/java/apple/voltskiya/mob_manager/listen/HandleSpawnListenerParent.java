@@ -16,6 +16,10 @@ public interface HandleSpawnListenerParent {
         return "volt." + getExtensionTag() + "." + getBriefTag();
     }
 
+    default String getFullExtensionTag() {
+        return "volt." + getExtensionTag() + ".";
+    }
+
     String getBriefTag();
 
     String getExtensionTag();
@@ -24,4 +28,5 @@ public interface HandleSpawnListenerParent {
         entity.removeScoreboardTag(this.getBriefTag());
         entity.addScoreboardTag(this.getTag());
     }
+
 }

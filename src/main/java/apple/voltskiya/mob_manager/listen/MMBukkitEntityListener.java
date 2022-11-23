@@ -19,8 +19,7 @@ public class MMBukkitEntityListener implements Listener {
     public void onDamage(EntityDamageEvent event) {
         @Nullable MMSpawned mob = MMRuntimeDatabase.getMob(event.getEntity().getUniqueId());
         if (mob != null) {
-            mob.getEvents().doDamage(event);
-            mob.getAbilities().onDamage(event);
+            mob.onDamage(event);
         }
     }
 
