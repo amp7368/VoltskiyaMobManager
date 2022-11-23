@@ -24,6 +24,10 @@ public class ActivationRange extends Activation {
         this.maxRange = maxRange;
     }
 
+    public double bounds() {
+        return Math.max(0, this.maxRange - this.minRange);
+    }
+
     @Override
     public ActivationRange setMob(MMSpawned mob) {
         super.setMob(mob);

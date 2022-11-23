@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import org.bukkit.Bukkit;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,13 +44,13 @@ public class MMAbilityManager implements HasMMSpawnedUtility {
 
     private void tick() {
         int currentTick = Bukkit.getCurrentTick();
+        this.abilities.sort(Comparator.comparingInt(MMAbilityBase::getNextTick));
         for (MMAbilityBase ability : this.abilities) {
             if (ability.getNextTick() <= currentTick) {
                 ability.tick_();
             } else
                 break;
         }
-        this.abilities.sort(Comparator.comparingInt(MMAbilityBase::getNextTick));
         if (this.abilities.isEmpty())
             this.nextTick = null;
         else
@@ -61,7 +62,7 @@ public class MMAbilityManager implements HasMMSpawnedUtility {
         return this.mob;
     }
 
-    public void doDeath(EntityDeathEvent event) {
+    public void onDeath(EntityDeathEvent event) {
         if (this.nextTick != null)
             this.nextTick.cancel();
         for (MMAbilityBase ability : this.abilities) {
@@ -73,6 +74,12 @@ public class MMAbilityManager implements HasMMSpawnedUtility {
     public void disable() {
         for (MMAbilityBase ability : this.abilities) {
             ability.disable();
+        }
+    }
+
+    public void onDamage(EntityDamageEvent event) {
+        for (MMAbilityBase ability : this.abilities) {
+            ability.onDamage(event);
         }
     }
 }

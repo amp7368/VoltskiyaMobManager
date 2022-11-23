@@ -15,11 +15,12 @@ public class MMBukkitEntityListener implements Listener {
         MMVoltskiyaPlugin.get().registerEvents(this);
     }
 
-    @EventHandler(priority = EventPriority.NORMAL)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onDamage(EntityDamageEvent event) {
         @Nullable MMSpawned mob = MMRuntimeDatabase.getMob(event.getEntity().getUniqueId());
         if (mob != null) {
             mob.getEvents().doDamage(event);
+            mob.getAbilities().onDamage(event);
         }
     }
 
