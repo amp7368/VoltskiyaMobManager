@@ -1,6 +1,7 @@
 package apple.voltskiya.mob_manager.listen;
 
 import org.bukkit.entity.Entity;
+import org.jetbrains.annotations.NotNull;
 
 public interface HandleSpawnListenerParent {
 
@@ -13,11 +14,11 @@ public interface HandleSpawnListenerParent {
     }
 
     default String getTag() {
-        return "volt." + getExtensionTag() + "." + getBriefTag();
+        return getPrefix() + getExtensionTag() + "." + getBriefTag();
     }
 
-    default String getFullExtensionTag() {
-        return "volt." + getExtensionTag() + ".";
+    static String getPrefix() {
+        return "volt.";
     }
 
     String getBriefTag();

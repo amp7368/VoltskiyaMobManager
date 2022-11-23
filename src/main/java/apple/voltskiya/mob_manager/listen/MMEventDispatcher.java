@@ -8,7 +8,6 @@ import apple.voltskiya.mob_manager.mob.MMSpawned;
 import apple.voltskiya.mob_manager.util.MMTagUtils;
 import com.google.common.collect.HashMultimap;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.bukkit.craftbukkit.v1_19_R1.entity.CraftEntity;
@@ -22,7 +21,6 @@ public class MMEventDispatcher {
 
     private final HashMultimap<String, ReSpawnListener> respawnListeners = HashMultimap.create();
     private final SpawnListenerList[] spawnListeners = new SpawnListenerList[MMSpawningPhase.values().length];
-    private final Set<String> fullExtensions = new HashSet<>();
 
     public MMEventDispatcher() {
         instance = this;
@@ -35,26 +33,20 @@ public class MMEventDispatcher {
 
     public void addListener(SpawnListener listener) {
         int phase = listener.getHandleOnPhase().ordinal();
-        Set<SpawnListener> listenersWithTag = spawnListeners[phase].listeners.get(listener.getBriefTag());
+        Set<SpawnListener> listenersWithTag = spawnListeners[phase].listeners.get(listener.getTag());
         listenersWithTag.add(listener);
-        synchronized (this.fullExtensions) {
-            this.fullExtensions.add(listener.getFullExtensionTag());
-        }
     }
 
     public void addRespawnListener(ReSpawnListener listener) {
-        Set<ReSpawnListener> listenersWithTag = respawnListeners.get(listener.getBriefTag());
+        Set<ReSpawnListener> listenersWithTag = respawnListeners.get(listener.getTag());
         listenersWithTag.add(listener);
-        synchronized (this.fullExtensions) {
-            this.fullExtensions.add(listener.getFullExtensionTag());
-        }
     }
 
 
     private void addModifiers(Entity entity, MMSpawned spawned, SpawnListenerList handler) {
         boolean isMob = entity instanceof Mob;
         for (String tag : List.copyOf(entity.getScoreboardTags())) {
-            Set<SpawnListener> listenersWithTag = handler.listeners.get(getBriefTag(tag));
+            Set<SpawnListener> listenersWithTag = handler.listeners.get(addPrefix(tag));
             if (handler.getState() == MMSpawningPhase.INITIALIZE)
                 continue;
             for (SpawnListener listener : listenersWithTag) {
@@ -67,14 +59,10 @@ public class MMEventDispatcher {
         }
     }
 
-    private String getBriefTag(String tag) {
-        synchronized (this.fullExtensions) {
-            for (String fullExtension : this.fullExtensions) {
-                if (tag.startsWith(fullExtension))
-                    return tag.substring(fullExtension.length());
-            }
-        }
-        return tag;
+    private String addPrefix(String tag) {
+        if (tag.startsWith(HandleSpawnListenerParent.getPrefix()))
+            return tag;
+        return HandleSpawnListenerParent.getPrefix() + tag;
     }
 
     private boolean checkReSpawn(Entity entity) {
