@@ -4,6 +4,7 @@ import apple.voltskiya.mob_manager.mob.HasMMSpawnedUtility;
 import apple.voltskiya.mob_manager.mob.MMSpawned;
 import apple.voltskiya.mob_manager.mob.ability.activation.ActivationManager;
 import java.util.Random;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 
 public abstract class MMAbilityBase implements HasMMSpawnedUtility {
@@ -26,20 +27,16 @@ public abstract class MMAbilityBase implements HasMMSpawnedUtility {
 
     // while ticking, use activation#getTickInterval(), but while determining when to run, use activation#getNextCheck
     protected final void tick_() {
-        if (this.isAbilityBlocking() && this.isBlocked()) {
-            setNextTickLater();
-            return;
-        }
         if (this.isAbilityRunning) {
             activation.onContinueAbility();
             setNextTickLater();
             return;
         }
-
-        if (this.canStartAbility_())
-            startAbility_();
-        else
+        if (activation.isNextTickLater() || this.isAbilityBlocking() && this.isBlocked() || !this.canStartAbility_()) {
             setNextTickLater();
+        } else {
+            startAbility_();
+        }
     }
 
     private boolean canStartAbility_() {
@@ -81,7 +78,7 @@ public abstract class MMAbilityBase implements HasMMSpawnedUtility {
     }
 
     private void setNextTickLater() {
-        this.nextTick = activation.getNextTick();
+        this.nextTick = activation.getNextTickInterval();
     }
 
     @Override
@@ -101,5 +98,8 @@ public abstract class MMAbilityBase implements HasMMSpawnedUtility {
     }
 
     protected void onFinishAbility() {
+    }
+
+    public void onDamage(EntityDamageEvent event) {
     }
 }

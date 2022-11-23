@@ -33,9 +33,19 @@ public class ActivationManager {
         return this.chance.roll() && requirements.stream().allMatch(Activation::canStartAbility);
     }
 
-    public int getNextTick() {
-        Optional<Integer> max = requirements.stream().map(Activation::getNextTick).max(Integer::compareTo);
+    public int getNextTickInterval() {
+        int max = findNextTick();
         int nextTick = Bukkit.getCurrentTick() + this.tickInterval;
+        return Math.max(max, nextTick);
+    }
+
+    public boolean isNextTickLater() {
+        return Bukkit.getCurrentTick() != findNextTick();
+    }
+
+    private int findNextTick() {
+        Optional<Integer> max = requirements.stream().map(Activation::getNextTick).max(Integer::compareTo);
+        int nextTick = Bukkit.getCurrentTick();
         if (max.isEmpty())
             return nextTick;
         return Math.max(max.get(), nextTick);
@@ -57,5 +67,4 @@ public class ActivationManager {
 
         return this;
     }
-
 }

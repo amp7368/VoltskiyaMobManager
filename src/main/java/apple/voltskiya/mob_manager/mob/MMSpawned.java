@@ -47,7 +47,7 @@ public class MMSpawned implements HasEntityUtility {
     }
 
     public void doDeath(EntityDeathEvent event) {
-        this.abilities.doDeath(event);
+        this.abilities.onDeath(event);
         this.events.doDeath(event);
     }
 
