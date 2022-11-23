@@ -48,20 +48,18 @@ public class MMUnloadListener implements Listener {
     public static void unload(Entity entity) {
         UUID uuid = entity.getUniqueId();
         @Nullable MMSpawned mob = MMRuntimeDatabase.getMob(uuid);
-        if (mob != null) {
-            mob.disable();
-            MMRuntimeDatabase.removeMob(uuid);
-        }
+        if (mob == null)
+            return;
+        mob.disable();
+        MMRuntimeDatabase.removeMob(uuid);
         MMTagUtils.removeComplete(entity);
         MMTagUtils.removeRespawned(entity);
     }
 
     public static void load(Entity entity) {
-        System.out.println(entity.getName());
         if (entity.isDead())
             return;
         UUID uuid = entity.getUniqueId();
-        System.out.println(MMRuntimeDatabase.hasMob(uuid));
         if (MMRuntimeDatabase.hasMob(uuid))
             return;
         if (MMTagUtils.isComplete(entity)) {
