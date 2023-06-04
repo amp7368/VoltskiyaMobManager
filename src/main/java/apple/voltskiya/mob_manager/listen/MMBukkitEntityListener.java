@@ -7,6 +7,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityTargetEvent;
 import org.jetbrains.annotations.Nullable;
 
 public class MMBukkitEntityListener implements Listener {
@@ -21,6 +22,12 @@ public class MMBukkitEntityListener implements Listener {
         if (mob != null) {
             mob.onDamage(event);
         }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onTarget(EntityTargetEvent event) {
+        @Nullable MMSpawned mob = MMRuntimeDatabase.getMob(event.getEntity().getUniqueId());
+        if (mob != null) mob.onTarget(event);
     }
 
 }

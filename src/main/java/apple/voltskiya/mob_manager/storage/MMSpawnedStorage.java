@@ -23,9 +23,8 @@ public class MMSpawnedStorage implements SaveFileable {
 
     private static final Map<String, MMSpawnedStorage> databases = new HashMap<>();
     private static AppleAJDTyped<MMSpawnedStorage> databaseManager;
-
-    private String id;
     private final Map<UUID, MMSpawnedSaved> spawned = new HashMap<>();
+    private String id;
 
     public MMSpawnedStorage(String id) {
         this.id = id;
@@ -51,10 +50,14 @@ public class MMSpawnedStorage implements SaveFileable {
     }
 
     public static void saveMob(UUID uuid, MMSpawnedSaved saved) {
-        if (saved.getListeners().isEmpty())
-            return;
         String id = getId(uuid);
         databases.computeIfAbsent(id, MMSpawnedStorage::new).doSaveMob(uuid, saved);
+    }
+
+    public static void loadAllMobs() {
+        MobManager.get().logger().info("Loading MMSpawnedStorage Mobs");
+        databases.values().forEach(MMSpawnedStorage::loadMobs);
+        MobManager.get().logger().info("Loaded MMSpawnedStorage Mobs");
     }
 
     private void doSaveMob(UUID uuid, MMSpawnedSaved saved) {
@@ -64,14 +67,6 @@ public class MMSpawnedStorage implements SaveFileable {
 
     private void saveDatabase() {
         databaseManager.saveInFolder(this);
-    }
-
-    public static void loadAllMobs() {
-        MobManager.get().logger().info("Loading MMSpawnedStorage Mobs");
-        for (MMSpawnedStorage database : databases.values()) {
-            database.loadMobs();
-        }
-        MobManager.get().logger().info("Loaded MMSpawnedStorage Mobs");
     }
 
     private void loadMobs() {

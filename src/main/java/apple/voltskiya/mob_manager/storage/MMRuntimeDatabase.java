@@ -4,6 +4,8 @@ import apple.voltskiya.mob_manager.mob.MMSpawned;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
 import org.jetbrains.annotations.Nullable;
 
 public class MMRuntimeDatabase {

@@ -6,26 +6,37 @@ import apple.voltskiya.mob_manager.mob.HasMMSpawnedUtility;
 import apple.voltskiya.mob_manager.mob.MMSpawned;
 import apple.voltskiya.mob_manager.storage.MMSpawnedSaved;
 import apple.voltskiya.mob_manager.storage.MMSpawnedStorage;
-import apple.voltskiya.mob_manager.util.MMTagUtils;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityTargetEvent;
 
-public class MMEventManager implements HasMMSpawnedUtility {
+public class MMEventManager implements HasMMSpawnedUtility, IHasMMListener {
 
     private final MMSpawnHandler[] handlers = new MMSpawnHandler[MMSpawningPhase.values().length];
     private final MMSpawned mob;
+    private final List<IMMListener> listeners = new ArrayList<>();
 
     public MMEventManager(MMSpawned mob) {
         this.mob = mob;
     }
 
+    public void addListener(IMMListener listener) {
+        this.listeners.add(listener);
+        this.listeners.sort(Comparator.comparingInt(IMMListener::orderValue));
+    }
+
+    public void removeListener(IMMListener listener) {
+        this.listeners.remove(listener);
+    }
+
     public void addHandler(SpawnListener listener, MMSpawningPhase state) {
         boolean shouldAdd = !listener.isOnlyMobs() || this.mob.isMob();
         if (shouldAdd) {
+            this.addListener(listener);
             MMSpawnHandler handler = this.handlers[state.ordinal()];
             if (handler == null)
                 handler = this.handlers[state.ordinal()] = new MMSpawnHandler();
@@ -42,7 +53,6 @@ public class MMEventManager implements HasMMSpawnedUtility {
     public void doHandle() {
         doToEachHandler(MMSpawnHandler::tag);
         doToEachHandler(MMSpawnHandler::handle);
-        MMTagUtils.setComplete(this.mob.getEntity());
     }
 
     public void save() {
@@ -50,18 +60,10 @@ public class MMEventManager implements HasMMSpawnedUtility {
         for (MMSpawnHandler handler : this.handlers) {
             if (handler != null)
                 listeners.addAll(
-                    handler.listeners.stream().map(SpawnListener::getBriefTag).toList());
+                    handler.listeners.stream().map(SpawnListener::getTag).toList());
         }
         MMSpawnedSaved saved = new MMSpawnedSaved(listeners);
         MMSpawnedStorage.saveMob(this.mob.getUUID(), saved);
-    }
-
-    private <T> void doToEachHandler(Handle<T> action, T event) {
-        for (int i = 1; i < handlers.length; i++) {
-            MMSpawnHandler handler = handlers[i];
-            if (handler != null)
-                action.doThing(handler, this.mob, event);
-        }
     }
 
     private void doToEachHandler(HandleEmpty action) {
@@ -72,27 +74,14 @@ public class MMEventManager implements HasMMSpawnedUtility {
         }
     }
 
-
-    public void onDeath(EntityDeathEvent event) {
-        doToEachHandler(MMSpawnHandler::onDeath, event);
-    }
-
-    public void onDamage(EntityDamageEvent event) {
-        doToEachHandler(MMSpawnHandler::onDamage, event);
-    }
-
-    public void disable() {
-        doToEachHandler(MMSpawnHandler::disable);
-    }
-
     @Override
     public MMSpawned getMMSpawned() {
         return this.mob;
     }
 
-    private interface Handle<T> {
-
-        void doThing(MMSpawnHandler handler, MMSpawned mmSpawned, T event);
+    @Override
+    public List<IMMListener> listeners() {
+        return List.copyOf(this.listeners);
     }
 
     private interface HandleEmpty {
@@ -100,13 +89,13 @@ public class MMEventManager implements HasMMSpawnedUtility {
         void doThing(MMSpawnHandler handler, MMSpawned mmSpawned);
     }
 
-    private static class MMSpawnHandler {
+    private static class MMSpawnHandler implements IMMListener {
 
         private final List<SpawnListener> listeners = new ArrayList<>();
 
         public void add(SpawnListener listener) {
             this.listeners.add(listener);
-            listeners.sort(Comparator.comparingInt((handler) -> handler.order().order()));
+            this.listeners.sort(Comparator.comparingInt(SpawnListener::orderValue));
         }
 
         public void handle(MMSpawned spawned) {
@@ -115,21 +104,31 @@ public class MMEventManager implements HasMMSpawnedUtility {
             }
         }
 
+        @Override
         public void disable(MMSpawned spawned) {
             for (SpawnListener listener : listeners) {
                 listener.disable(spawned);
             }
         }
 
+        @Override
         public void onDeath(MMSpawned spawned, EntityDeathEvent event) {
             for (SpawnListener listener : listeners) {
                 listener.onDeath(spawned, event);
             }
         }
 
+        @Override
         public void onDamage(MMSpawned spawned, EntityDamageEvent event) {
             for (SpawnListener listener : listeners) {
                 listener.onDamage(spawned, event);
+            }
+        }
+
+        @Override
+        public void onTarget(MMSpawned spawned, EntityTargetEvent event) {
+            for (SpawnListener listener : listeners) {
+                listener.onTarget(spawned, event);
             }
         }
 

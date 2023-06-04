@@ -8,9 +8,8 @@ import apple.voltskiya.mob_manager.mob.MMSpawned;
 import apple.voltskiya.mob_manager.util.MMTagUtils;
 import com.google.common.collect.HashMultimap;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_19_R3.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Mob;
 import org.jetbrains.annotations.NotNull;
@@ -44,11 +43,11 @@ public class MMEventDispatcher {
 
 
     private void addModifiers(Entity entity, MMSpawned spawned, SpawnListenerList handler) {
+        if (handler.getState() == MMSpawningPhase.INITIALIZE)
+            return;
         boolean isMob = entity instanceof Mob;
-        for (String tag : List.copyOf(entity.getScoreboardTags())) {
+        for (String tag : entity.getScoreboardTags()) {
             Set<SpawnListener> listenersWithTag = handler.listeners.get(addPrefix(tag));
-            if (handler.getState() == MMSpawningPhase.INITIALIZE)
-                continue;
             for (SpawnListener listener : listenersWithTag) {
                 if (listener.isOnlyMobs() && !isMob)
                     continue;
@@ -66,11 +65,13 @@ public class MMEventDispatcher {
     }
 
     private boolean checkReSpawn(Entity entity) {
-        if (MMTagUtils.isRespawned(entity))
+        if (MMTagUtils.isRespawned(entity)) {
+            MMTagUtils.removeRespawned(entity);
             return false;
+        }
         boolean isMob = entity instanceof Mob;
         for (String briefTag : entity.getScoreboardTags()) {
-            @NotNull Set<ReSpawnListener> listenersWithTag = respawnListeners.get(briefTag);
+            @NotNull Set<ReSpawnListener> listenersWithTag = respawnListeners.get(addPrefix(briefTag));
             for (ReSpawnListener listener : listenersWithTag) {
                 if (listener.isOnlyMobs() && !isMob)
                     continue;
@@ -119,6 +120,7 @@ public class MMEventDispatcher {
         // do the listeners
         spawned.getEvents().doInitialize();
         spawned.getEvents().save();
+
         schedule(spawned::doHandle);
     }
 

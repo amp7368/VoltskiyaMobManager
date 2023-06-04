@@ -7,6 +7,7 @@ import apple.voltskiya.mob_manager.storage.MMRuntimeDatabase;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityTargetEvent;
 import org.jetbrains.annotations.NotNull;
 
 public class MMSpawned implements HasEntityUtility {
@@ -45,12 +46,12 @@ public class MMSpawned implements HasEntityUtility {
         this.events.doHandle();
     }
 
-    public void setBlocked(boolean isBlocked) {
-        this.isBlocked = isBlocked;
-    }
-
     public boolean isBlocked() {
         return this.isBlocked;
+    }
+
+    public void setBlocked(boolean isBlocked) {
+        this.isBlocked = isBlocked;
     }
 
     public void onDeath(EntityDeathEvent event) {
@@ -69,5 +70,10 @@ public class MMSpawned implements HasEntityUtility {
         this.abilities.onDamage(event);
         this.events.onDamage(event);
 
+    }
+
+    public void onTarget(EntityTargetEvent event) {
+        this.abilities.onTarget(event);
+        this.events.onTarget(event);
     }
 }

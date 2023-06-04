@@ -21,6 +21,25 @@ public class MMUnloadListener implements Listener {
         MMVoltskiyaPlugin.get().registerEvents(this);
     }
 
+    public static void unload(Entity entity) {
+        UUID uuid = entity.getUniqueId();
+        @Nullable MMSpawned mob = MMRuntimeDatabase.getMob(uuid);
+        if (mob == null)
+            return;
+        mob.disable();
+        MMRuntimeDatabase.removeMob(uuid);
+        MMTagUtils.removeRespawned(entity);
+    }
+
+    public static void load(Entity entity) {
+        if (entity.isDead())
+            return;
+        UUID uuid = entity.getUniqueId();
+        if (MMRuntimeDatabase.hasMob(uuid))
+            return;
+        MMEventDispatcher.get().load(entity);
+    }
+
     @EventHandler(ignoreCancelled = true)
     public void unload(EntitiesUnloadEvent event) {
         event.getEntities().forEach(MMUnloadListener::unload);
@@ -43,29 +62,5 @@ public class MMUnloadListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onSpawn(CreatureSpawnEvent event) {
         load(event.getEntity());
-    }
-
-    public static void unload(Entity entity) {
-        UUID uuid = entity.getUniqueId();
-        @Nullable MMSpawned mob = MMRuntimeDatabase.getMob(uuid);
-        if (mob == null)
-            return;
-        mob.disable();
-        MMRuntimeDatabase.removeMob(uuid);
-        MMTagUtils.removeComplete(entity);
-        MMTagUtils.removeRespawned(entity);
-    }
-
-    public static void load(Entity entity) {
-        if (entity.isDead())
-            return;
-        UUID uuid = entity.getUniqueId();
-        if (MMRuntimeDatabase.hasMob(uuid))
-            return;
-        if (MMTagUtils.isComplete(entity)) {
-            MMTagUtils.removeComplete(entity);
-            MMTagUtils.removeRespawned(entity);
-        }
-        MMEventDispatcher.get().load(entity);
     }
 }

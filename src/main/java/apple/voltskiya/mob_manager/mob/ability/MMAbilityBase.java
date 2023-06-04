@@ -6,6 +6,7 @@ import apple.voltskiya.mob_manager.mob.ability.activation.ActivationManager;
 import java.util.Random;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityTargetEvent;
 
 public abstract class MMAbilityBase implements HasMMSpawnedUtility {
 
@@ -101,5 +102,8 @@ public abstract class MMAbilityBase implements HasMMSpawnedUtility {
     }
 
     public void onDamage(EntityDamageEvent event) {
+    }
+
+    public void onTarget(EntityTargetEvent event) {
     }
 }
