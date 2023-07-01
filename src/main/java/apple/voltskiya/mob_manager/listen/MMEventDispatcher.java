@@ -9,7 +9,7 @@ import apple.voltskiya.mob_manager.util.MMTagUtils;
 import com.google.common.collect.HashMultimap;
 import java.util.Arrays;
 import java.util.Set;
-import org.bukkit.craftbukkit.v1_19_R3.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_20_R1.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Mob;
 import org.jetbrains.annotations.NotNull;
