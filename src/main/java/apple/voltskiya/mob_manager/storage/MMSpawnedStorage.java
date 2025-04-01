@@ -1,6 +1,6 @@
 package apple.voltskiya.mob_manager.storage;
 
-import apple.utilities.database.SaveFileable;
+import apple.utilities.database.HasFilename;
 import apple.utilities.database.ajd.AppleAJD;
 import apple.utilities.database.ajd.AppleAJDTyped;
 import apple.utilities.threading.service.base.create.AsyncTaskQueueStart;
@@ -19,7 +19,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
-public class MMSpawnedStorage implements SaveFileable {
+public class MMSpawnedStorage implements HasFilename {
 
     private static final Map<String, MMSpawnedStorage> databases = new HashMap<>();
     private static AppleAJDTyped<MMSpawnedStorage> databaseManager;
@@ -84,6 +84,6 @@ public class MMSpawnedStorage implements SaveFileable {
 
     @Override
     public String getSaveFileName() {
-        return extensionJson(id);
+        return id + ".json";
     }
 }

@@ -1,10 +1,9 @@
 package apple.voltskiya.mob_manager.mob;
 
-import apple.nms.decoding.entity.DecodeEntity;
 import java.util.UUID;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_20_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
@@ -59,8 +58,8 @@ public interface HasEntityUtility {
 
     default boolean wasHit(int inLast) {
         net.minecraft.world.entity.Mob mob = getNmsMob();
-        int hurt = DecodeEntity.getHurtTimestamp(mob);
-        int ticksLived = DecodeEntity.getTicksLived(mob);
+        int hurt = mob.lastHurtByMobTimestamp;
+        int ticksLived = mob.tickCount;
 
         return hurt != 0 && hurt + inLast >= ticksLived && getMob().getLastDamage() != 0;
     }

@@ -33,16 +33,10 @@ public class ActivationRange extends Activation {
         super.setMob(mob);
         if (!mob.isMob())
             notMobError(mob);
-        AttributeInstance attribute = mob.getMob().getAttribute(Attribute.GENERIC_FOLLOW_RANGE);
+        AttributeInstance attribute = mob.getMob().getAttribute(Attribute.FOLLOW_RANGE);
         if (attribute != null && attribute.getBaseValue() < this.maxRange)
             attribute.setBaseValue(this.maxRange);
         return this;
-    }
-
-    private void notMobError(MMSpawned mob) {
-        MobManager.get().logger().error(
-            String.format("'%s:%s' is not a Mob, but ActivationRange requires mobs", mob.getEntity().getName(),
-                mob.getEntity().getType().name()));
     }
 
     @Override
@@ -59,5 +53,11 @@ public class ActivationRange extends Activation {
     @Override
     public Activation copy() {
         return new ActivationRange(this.minRange, this.maxRange);
+    }
+
+    private void notMobError(MMSpawned mob) {
+        MobManager.get().logger().error(
+            String.format("'%s:%s' is not a Mob, but ActivationRange requires mobs", mob.getEntity().getName(),
+                mob.getEntity().getType().name()));
     }
 }
